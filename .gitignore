@@ -1,0 +1,4 @@
+*.idea
+*out
+*.vs
+*node_modules
