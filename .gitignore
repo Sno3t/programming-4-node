@@ -1,4 +1,1 @@
-*.idea
-*out
-*.vs
-*node_modules
+/node_modules
