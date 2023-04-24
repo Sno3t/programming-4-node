@@ -15,12 +15,19 @@ let database = {
       lastName: 'Jansen',
       emailAdress: 'm@server.nl'
       // Hier de overige velden uit het functioneel ontwerp
+    },
+    {
+      id: 2,
+      firstName: 'Jane',
+      lastName: 'Doe',
+      emailAdress: 'jane.doe@example.com'
+      // Hier de overige velden uit het functioneel ontwerp
     }
   ],
 
   // Ieder nieuw item in db krijgt 'autoincrement' index.
   // Je moet die wel zelf toevoegen!
-  index: 2
+  index: 3
 };
 
 module.exports = database;

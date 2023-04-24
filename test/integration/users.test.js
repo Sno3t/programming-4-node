@@ -8,102 +8,112 @@ chai.should();
 chai.use(chaiHttp);
 
 describe('UC-201 Registreren als nieuwe user', () => {
-  it('TC-201-1 - Verplicht veld ontbreekt', (done) => {
-    // Testen die te maken hebben met authenticatie of het valideren van
-    // verplichte velden kun je nog niet uitvoeren. Voor het eerste inlevermoment
-    // mag je die overslaan.
-    // In een volgende huiswerk opdracht ga je deze tests wel uitwerken.
-    // Voor nu:
-    done();
+  it('TC-201-1 Verplicht veld ontbreekt', (done) => {
+    chai
+      .request(app)
+      .post('/users')
+      .send({
+        firstName: 'John',
+      })
+      .end((err, res) => {
+        assert.equal(res.status, 400);
+        assert.equal(res.body.message, 'emailAddress must be a string');
+        done();
+      });
   });
 
-  it('TC-201-5 - User succesvol geregistreerd', (done) => {
-    // nieuwe user waarmee we testen
-    const newUser = {
-      firstName: 'Hendrik',
-      lastName: 'van Dam',
-      emailAdress: 'hvd@server.nl'
-    };
-
-    // Voer de test uit
+  it.skip('TC-201-4 Gebruiker bestaat al', (done) => {
     chai
-      .request(server)
-      .post('/api/register')
-      .send(newUser)
+      .request(app)
+      .post('/users')
+      .send({
+        firstName: 'Jane',
+        lastName: 'Doe',
+        emailAddress: 'john@example.com',
+      })
       .end((err, res) => {
-        // Valideer dat er geen errors waren. Kan met assert()
-        assert(err === null);
-        // of met chai.expect(), is meer BDD.
-        chai.expect(err).to.be.null;
+        assert.equal(res.status, 403);
+        assert.equal(res.body.message, 'User with this email already exists');
+        done();
+      });
+  });
 
-        res.body.should.be.an('object');
-        let { data, message, status } = res.body;
-
-        status.should.equal(200);
-        message.should.be.a('string').that.contains('toegevoegd');
-        data.should.be.an('object');
-
-        // OPDRACHT!
-        // Bekijk zelf de API reference op https://www.chaijs.com/api/bdd/
-        // Daar zie je welke chained functions je nog meer kunt gebruiken.
-        data.should.include({ id: 2 });
-        data.should.not.include({ id: 0 });
-        data.id.should.equal(2);
-        data.firstName.should.equal('Hendrik');
-
+  it('TC-201-5 Gebruiker succesvol geregistreerd', (done) => {
+    chai
+      .request(app)
+      .post('/users')
+      .send({
+        firstName: 'John',
+        firstName: 'Maddan',
+        emailAddress: 'john@example.com',
+      })
+      .end((err, res) => {
+        assert.equal(res.status, 201);
+        assert.ok(res.body.data.id);
+        assert.equal(res.body.data.firstName, 'John');
+        assert.equal(res.body.data.lastName, 'Maddan');
+        assert.equal(res.body.data.emailAddress, 'john@example.com');
+        assert.equal(res.body.data.message, "User met id 4 is toegevoegd")
         done();
       });
   });
 });
 
 describe('UC-202 Opvragen van overzicht van users', () => {
-  it('TC-202-1 - Toon alle gebruikers, minimaal 2', (done) => {
-    // Voer de test uit
+  it('TC-202-1 Alle gebruikers ophalen', (done) => {
     chai
-      .request(server)
-      .get('/api/user')
+      .request(app)
+      .get('/users')
       .end((err, res) => {
-        assert(err === null);
-
-        res.body.should.be.an('object');
-        let { data, message, status } = res.body;
-
-        status.should.equal(200);
-        message.should.be.a('string').equal('User getAll endpoint');
-
-        // Je kunt hier nog testen dat er werkelijk 2 userobjecten in het array zitten.
-        // Maarrr: omdat we in een eerder test een user hebben toegevoegd, bevat
-        // de database nu 3 users...
-        // We komen hier nog op terug.
-        data.should.be.an('array').that.has.length(3);
-
+        assert.equal(res.status, 200);
+        assert.isArray(res.body.data);
+        assert.equal(res.body.data, Object);
+        assert.equal(res.body.data.message, "User getAll endpoint");
+        assert.equal(res.body.data.length, 3);
         done();
       });
   });
+});
 
-  // Je kunt een test ook tijdelijk skippen om je te focussen op andere testcases.
-  // Dan gebruik je it.skip
-  it.skip('TC-202-2 - Toon gebruikers met zoekterm op niet-bestaande velden', (done) => {
-    // Voer de test uit
+describe('UC-203 Opvragen van gebruikersprofiel', () => {
+  it('TC-203-2 Gebruiker is ingelogd met geldig token', (done) => {
     chai
-      .request(server)
-      .get('/api/user')
-      .query({ name: 'foo', city: 'non-existent' })
-      // Is gelijk aan .get('/api/user?name=foo&city=non-existent')
+      .request(app)
+      .get('/user/profile')
       .end((err, res) => {
-        assert(err === null);
-
-        res.body.should.be.an('object');
-        let { data, message, status } = res.body;
-
-        status.should.equal(200);
-        message.should.be.a('string').equal('User getAll endpoint');
-        data.should.be.an('array');
-
+        assert.equal(res.status, 200);
+        assert.isArray(res.body.data);
+        assert.equal(res.body.data, Object);
+        assert.equal(res.body.data.length, 3);
         done();
       });
   });
+});
 
+describe('UC-204 Opvragen van usergegevens bij ID', () => {
+  it('TC-204-3 Gebruiker-ID bestaat', (done) => {
+    const userIdToFind = 2;
+    chai
+      .request(app)
+      .get(`/users/${userIdToFind}`)
+      .end((err, res) => {
+        assert.equal(res.status, 200);
+        assert.equal(res.body.message, `User with id ${userIdToFind}: Jane Doe (jane.doe@example.com)`);
+        done();
+      });
+  });
+});
 
-  
+describe('UC-206 Verwijderen van user', () => {
+  it('TC-206-4 Gebruiker succesvol verwijderd', (done) => {
+    const userIdToDelete = 1; // change this to an existing user ID
+    chai
+      .request(app)
+      .delete(`/users/${userIdToDelete}`)
+      .end((err, res) => {
+        assert.equal(res.status, 200);
+        assert.equal(res.body.message, `User met ID ${userIdToDelete} is verwijderd`);
+        done();
+      });
+  });
 });

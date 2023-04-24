@@ -65,8 +65,8 @@ const userController = {
     database['users'].push(user);
     logger.info('New user added to database');
 
-    res.status(200).json({
-      status: 200,
+    res.status(201).json({
+      status: 201,
       message: `User met id ${user.id} is toegevoegd`,
       data: user
     });
@@ -100,65 +100,65 @@ const userController = {
 
   // UC-203  Opvragen van gebruikersprofiel
   getUserProfile: (req, res) => {
-      // Usergegevens en userId
-      const statusCode = 200;
-      res.status(statusCode).json({
-        status: statusCode,
-        message: "Get all user profiles",
-        data: database.users
-      });
+    // Usergegevens en userId
+    const statusCode = 200;
+    res.status(statusCode).json({
+      status: statusCode,
+      message: "Get all user profiles",
+      data: database.users
+    });
   },
 
   // UC-204 Opvragen van usergegevens bij ID
   getUserByID: (req, res) => {
-      // Usergegevens en userId
-      const userIdToFind = parseInt(req.params.userId);
+    // Usergegevens en userId
+    const userIdToFind = parseInt(req.params.userId);
 
-      database.users.forEach(function (user) {
-        if (user.id === userIdToFind) {
-          const statusCode = 200;
-          message = `User with id ${userIdToFind}: ${user.firstName} ${user.lastName} (${user.emailAdress})`;
-        } else {
-          statusCode = 404;
-          message = `User with ${userIdToFind} ID has not been found`;
-        }
-      });
+    database.users.forEach(function (user) {
+      if (user.id === userIdToFind) {
+        const statusCode = 200;
+        message = `User with id ${userIdToFind}: ${user.firstName} ${user.lastName} (${user.emailAdress})`;
+      } else {
+        statusCode = 404;
+        message = `User with ${userIdToFind} ID has not been found`;
+      }
+    });
 
-      res.status(statusCode).json({
-        status: statusCode,
-        message: message,
-        data: database.users
-      });
+    res.status(statusCode).json({
+      status: statusCode,
+      message: message,
+      data: database.users
+    });
   },
 
   // UC-205 Wijzigen van usergegevens
   updateUser: (ewq, res) => {
-      let statusCode = 200;
-      const userId = parseInt(req.params.userId);
-      const { name, email } = req.body;
-      const userToUpdate = users.find(user => user.id === userId);
-    
-      // If the user is not found, send a 404 error response
-      if (!userToUpdate) {
-        statusCode = 404;
-        message = `User with ${userId} ID has not been found`;
-      }
-    
-      // Update the user's information
-      if (name) {
-        userToUpdate.name = name;
-      }
-      if (email) {
-        userToUpdate.email = email;
-      }
-    
-      res.status(statusCode).json({
-        status: statusCode,
-        message: message,
-        data: database.users
-      });
-  
-      res.send(userToUpdate);
+    let statusCode = 200;
+    const userId = parseInt(req.params.userId);
+    const { name, email } = req.body;
+    const userToUpdate = users.find(user => user.id === userId);
+
+    // If the user is not found, send a 404 error response
+    if (!userToUpdate) {
+      statusCode = 404;
+      message = `User with ${userId} ID has not been found`;
+    }
+
+    // Update the user's information
+    if (name) {
+      userToUpdate.name = name;
+    }
+    if (email) {
+      userToUpdate.email = email;
+    }
+
+    res.status(statusCode).json({
+      status: statusCode,
+      message: message,
+      data: database.users
+    });
+
+    res.send(userToUpdate);
   }
 }
 
