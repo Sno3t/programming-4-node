@@ -3,6 +3,7 @@ const chai = require('chai');
 const chaiHttp = require('chai-http');
 const server = require('../../index');
 require('tracer').setLevel('error');
+const app = require('../../index')
 
 chai.should();
 chai.use(chaiHttp);
@@ -106,7 +107,7 @@ describe('UC-204 Opvragen van usergegevens bij ID', () => {
 
 describe('UC-206 Verwijderen van user', () => {
   it('TC-206-4 Gebruiker succesvol verwijderd', (done) => {
-    const userIdToDelete = 1; // change this to an existing user ID
+    const userIdToDelete = 1;
     chai
       .request(app)
       .delete(`/users/${userIdToDelete}`)
